@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>아르떼조명 기사용</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{
+  --ink:#151d2a; --ink-2:#415065; --ink-3:#6f8098; --ink-4:#93a2b6;
+  --paper:#eef1f5; --line:#d3dbe5; --line-2:#e8edf3;
+  --blue:#2f5aa8; --blue-soft:#e9eff9;
+  --go:#186b4f; --tight:#9a6a0d; --stop:#a53226;
+  --tight-bg:#fdf6e6; --stop-bg:#fceeec; --go-bg:#eaf6f1;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --sans:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font-family:inherit;font-size:16px;color:inherit}
+button{cursor:pointer}
+.app{max-width:480px;margin:0 auto;min-height:100vh;background:#fff;box-shadow:0 0 40px -20px rgba(0,0,0,.3);padding-bottom:70px}
+
+.bar{background:var(--ink);color:#fff;padding:13px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:20}
+.bar b{font-size:17px;font-weight:800}
+.bar span{font-size:10px;letter-spacing:.2em;color:#93a7c4;font-family:var(--mono)}
+.bar .load{margin-left:auto;background:transparent;border:1px solid #3d4b60;color:#d3dfee;border-radius:6px;padding:6px 11px;font-size:13px;font-weight:600}
+.bar[hidden]{display:none}
+
+/* ---------- 인사말 ---------- */
+.greet{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:34px 26px 40px;
+  background:linear-gradient(165deg,#1b2536 0%,#233150 45%,#2c4d8c 100%);background-color:#1b2536;color:#fff}
+.greet .logo{font-size:11px;letter-spacing:.26em;color:#8fa8cd;font-family:var(--mono);margin-bottom:26px}
+.greet .day{font-size:14px;color:#9db2d0;margin-bottom:8px}
+.greet .hi{font-size:26px;font-weight:800;line-height:1.35;letter-spacing:-.02em;margin-bottom:18px}
+.greet .msg{font-size:16.5px;line-height:1.85;color:#e2e9f4;word-break:keep-all}
+.greet .sign{margin-top:26px;font-size:13px;color:#8fa8cd;border-top:1px solid #33415a;padding-top:16px}
+.greet .go{margin-top:30px;width:100%;padding:17px;border-radius:12px;border:0;background:#fff;color:#151d2a;
+  font-size:16.5px;font-weight:800}
+.greet .go:active{background:#dfe7f3}
+.greet .sub{margin-top:10px;width:100%;padding:14px;border-radius:12px;border:1px solid #46536b;
+  background:transparent;color:#cfdcee;font-size:14.5px;font-weight:700}
+
+/* ---------- 공통 ---------- */
+.days{display:flex;overflow-x:auto;background:#20293a;border-bottom:3px solid var(--blue)}
+.days button{flex:none;background:transparent;border:0;color:#93a7c4;padding:10px 15px;font-size:14px;font-weight:700;border-bottom:3px solid transparent;margin-bottom:-3px;white-space:nowrap}
+.days button[aria-pressed="true"]{color:#fff;border-bottom-color:var(--blue)}
+.days button .n{display:block;font-size:11px;font-weight:500;color:#7d90ab}
+.head{background:#1c2534;color:#fff;padding:15px 17px}
+.head b{font-size:20px;font-weight:800}
+.head .sub{font-size:13px;color:#9db2d0;margin-top:3px}
+.head .stat{margin-top:11px;display:flex;gap:7px;flex-wrap:wrap}
+.head .stat span{background:#2a3549;border:1px solid #3d4b60;border-radius:6px;padding:5px 11px;font-size:12px;font-family:var(--mono)}
+.head .stat span.warn{background:#4b2119;border-color:#7f3a2e;color:#f3b5a8}
+.warnbar{background:var(--stop-bg);border-bottom:2px solid var(--stop);color:#8c2b21;padding:10px 14px;font-size:13.5px;font-weight:700}
+.list{padding:14px}
+.move{display:flex;align-items:center;gap:9px;padding:8px 4px 8px 18px;font-size:12.5px;color:var(--ink-2);border-left:3px dashed var(--line);margin-left:10px}
+.move i{width:9px;height:9px;border-radius:50%;flex:none;margin-left:-23px;border:2px solid #fff}
+.move a{margin-left:auto;font-size:12.5px;font-weight:700}
+.card{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:8px 0 14px;background:#fff;box-shadow:0 1px 0 rgba(0,0,0,.04),0 10px 22px -18px rgba(0,0,0,.5)}
+.card.done{opacity:.62}
+.card .top{padding:12px 14px;color:#fff;display:flex;align-items:center;gap:9px}
+.card .top b{font-size:17px;font-weight:800;line-height:1.3}
+.card .top .t{margin-left:auto;font-family:var(--mono);font-size:15px;font-weight:700;white-space:nowrap}
+.card .in{padding:13px 14px}
+.r{display:flex;gap:10px;font-size:15px;padding:6px 0;border-bottom:1px solid var(--line-2)}
+.r:last-of-type{border-bottom:0}
+.r dt{color:var(--ink-3);font-size:13px;width:60px;flex:none}
+.r dd{margin:0;flex:1;word-break:break-word}
+.note{background:var(--tight-bg);border:1px solid #ecd9a8;border-radius:9px;padding:11px 12px;font-size:14px;margin-top:11px;white-space:pre-wrap}
+.note b{display:block;font-size:12px;color:#7d5608;margin-bottom:3px}
+.mat{background:#f2effa;border:1px solid #d5cbec;border-radius:9px;padding:11px 12px;margin-top:11px}
+.mat b{display:block;font-size:12.5px;color:#5b3f8f;margin-bottom:3px}
+.mat .mrow2{display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap}
+.mat .mrow2 a,.mat .mrow2 button{flex:1;min-width:100px;text-align:center;text-decoration:none;
+  border:1px solid #cbbfe6;background:#fff;border-radius:8px;padding:9px 8px;font-size:13.5px;font-weight:700;color:#5b3f8f}
+.mat .mrow2 button.on{background:#5b3f8f;color:#fff;border-color:#5b3f8f}
+.delaytag{background:var(--stop-bg);border:1px solid #eec8c2;color:#8c2b21;border-radius:9px;padding:9px 12px;font-size:13.5px;margin-top:9px;font-weight:700}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}
+.acts a,.acts button{flex:1;min-width:104px;text-align:center;text-decoration:none;border:1px solid var(--line);
+  background:#fff;border-radius:9px;padding:12px 8px;font-size:14px;font-weight:700;color:var(--ink)}
+.acts a:active,.acts button:active{background:var(--blue-soft)}
+.acts .prim{background:var(--ink);color:#fff;border-color:var(--ink)}
+.acts .undo{background:var(--go-bg);color:var(--go);border-color:#b7ddcc}
+.dl{margin-top:9px}
+.dl .lab{font-size:12.5px;color:var(--ink-3);margin-bottom:5px}
+.dl .btns{display:flex;gap:6px}
+.dl .btns button{flex:1;border:1px solid #e6cf9a;background:var(--tight-bg);color:#7d5608;border-radius:9px;padding:11px 4px;font-size:14px;font-weight:700}
+.dl select{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;margin-bottom:7px;background:#fff}
+.sub2{display:flex;gap:6px;margin-top:9px}
+.sub2 select,.sub2 input{padding:10px;border:1px solid var(--line);border-radius:8px;background:#fff;min-width:0}
+.sub2 select{flex:1.2}.sub2 input{flex:1}
+.sub2 button{flex:none;padding:10px 14px;border:1px solid var(--ink);background:var(--ink);color:#fff;border-radius:8px;font-weight:700;font-size:14px}
+.lab2{font-size:12.5px;color:var(--ink-3);margin-top:11px;font-weight:700}
+.explist{margin-top:7px}
+.exprow{display:flex;gap:8px;align-items:center;font-size:13.5px;padding:6px 0;border-bottom:1px solid var(--line-2)}
+.exprow b{margin-left:auto}
+.exprow button{border:0;background:transparent;color:var(--ink-3);font-size:17px;padding:0 4px}
+.paytag{display:inline-block;background:var(--go-bg);color:var(--go);border:1px solid #b7ddcc;border-radius:6px;
+  padding:3px 9px;font-size:13px;font-weight:700}
+.memo{width:100%;min-height:64px;border:1px solid var(--line);border-radius:8px;padding:10px;margin-top:9px;resize:vertical}
+.end{text-align:center;font-family:var(--mono);font-size:13px;color:var(--ink-3);padding:14px 0 6px;border-top:1px dashed var(--line);margin-top:10px}
+.foot{padding:0 14px 24px}
+.foot button{width:100%;padding:14px;border-radius:10px;border:1px solid var(--ink);background:var(--ink);color:#fff;font-weight:800;font-size:15px;margin-bottom:9px}
+.foot button.ghost{background:#fff;color:var(--ink);border-color:var(--line);font-weight:700}
+.empty{padding:44px 22px;text-align:center;color:var(--ink-3)}
+.intro{padding:30px 22px 40px}
+.intro h1{font-size:21px;margin:0 0 10px}
+.intro p{color:var(--ink-2);font-size:14.5px;margin:0 0 14px}
+.intro ol{color:var(--ink-2);font-size:14.5px;padding-left:20px;line-height:1.9;margin:0 0 20px}
+.big{width:100%;padding:16px;border-radius:11px;border:1px solid var(--ink);background:var(--ink);color:#fff;font-weight:800;font-size:16px}
+.chipx{display:inline-block;font-size:12px;font-weight:700;padding:2px 8px;border-radius:4px;background:#eef2f7;color:var(--ink-2);margin-right:5px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:84px;background:var(--ink);color:#fff;
+  padding:12px 20px;border-radius:24px;font-size:14px;font-weight:700;z-index:60;box-shadow:0 10px 30px -10px rgba(0,0,0,.6)}
+.toast[hidden]{display:none}
+
+/* ---------- 하단 탭 ---------- */
+.nav{position:fixed;bottom:0;left:0;right:0;max-width:480px;margin:0 auto;display:flex;background:#fff;
+  border-top:1px solid var(--line);box-shadow:0 -6px 20px -14px rgba(0,0,0,.5);z-index:30}
+.nav[hidden]{display:none}
+.nav button{flex:1;border:0;background:transparent;padding:12px 6px 16px;font-size:13px;font-weight:700;color:var(--ink-3)}
+.nav button b{display:block;font-size:18px;line-height:1.1;margin-bottom:2px}
+.nav button[aria-pressed="true"]{color:var(--blue)}
+
+/* ---------- 시공 기록 ---------- */
+.arch{padding:14px}
+.sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.sum div{background:#f5f8fb;border:1px solid var(--line-2);border-radius:10px;padding:11px 10px;text-align:center}
+.sum dt{font-size:12px;color:var(--ink-3);margin-bottom:3px}
+.sum dd{margin:0;font-size:17px;font-weight:800;font-family:var(--mono)}
+.mon{font-size:14px;font-weight:800;color:var(--ink-2);margin:16px 0 8px;display:flex;align-items:center;gap:8px}
+.mon span{font-family:var(--mono);font-size:12px;color:var(--ink-3);font-weight:600;margin-left:auto}
+.rec{border:1px solid var(--line);border-left:4px solid var(--blue);border-radius:10px;padding:11px 13px;margin-bottom:9px;background:#fff}
+.rec .t1{display:flex;gap:8px;align-items:baseline}
+.rec .t1 b{font-size:15px;font-weight:800}
+.rec .t1 .d{margin-left:auto;font-family:var(--mono);font-size:12.5px;color:var(--ink-3)}
+.rec .t2{font-size:13px;color:var(--ink-2);margin-top:4px}
+.rec .t3{font-size:12.5px;color:var(--ink-3);margin-top:6px;padding-top:6px;border-top:1px dashed var(--line-2)}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="bar" id="topbar"><b>아르떼조명</b><span>기사용</span>
+    <button class="load" id="btnLoad">파일 불러오기</button>
+    <input type="file" id="fileIn" accept="application/json" hidden>
+  </div>
+  <div id="root"></div>
+</div>
+<div class="nav" id="nav" hidden>
+  <button data-nav="today" aria-pressed="true"><b>📋</b>오늘 일정</button>
+  <button data-nav="archive"><b>🗂</b>내 시공 기록</button>
+  <button data-nav="greet"><b>💬</b>인사말</button>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+/* ===================== 인사말 100선 ===================== */
+/* {n} 자리에 기사님 성함이 들어갑니다. 계절별 25개씩, 같은 계절 안에서는
+   한 바퀴를 다 돌기 전까지 같은 문장이 다시 나오지 않습니다. */
+const GREETINGS={
+spring:[
+"아르떼조명과 함께 늘 고생해 주시는 시공 기사 {n}님! 정말 감사합니다. 아르떼조명은 기사님들의 노고 덕분에 성장하고 있습니다. 오늘 하루도 안전하고 행복한 시공하시길 빕니다.",
+"봄기운이 완연합니다, {n} 기사님. 새 계절 새 집에 불을 밝히는 손길, 늘 감사드립니다. 오늘도 안전 먼저 챙기시고 무탈한 하루 보내세요.",
+"{n} 기사님, 아침 공기가 한결 부드러워졌습니다. 기사님 손끝에서 오늘도 환한 집 한 채가 완성됩니다. 무리하지 마시고 건강하게 마무리하세요.",
+"이사철 바쁜 나날에도 한결같으신 {n} 기사님, 고맙습니다. 서두르다 다치는 일 없도록 오늘도 한 박자 여유 두고 움직이시길 바랍니다.",
+"{n} 기사님, 꽃 피는 계절입니다. 고객댁에 들어서는 기사님의 인사 한마디가 아르떼의 첫인상이 됩니다. 오늘도 잘 부탁드립니다.",
+"새싹이 돋는 봄처럼 아르떼도 {n} 기사님과 함께 자라고 있습니다. 오늘 하루도 안전하게, 그리고 즐겁게 일하시길 응원합니다.",
+"{n} 기사님, 일교차가 큰 계절입니다. 겉옷 한 벌 챙기시고 현장 이동 중 컨디션 잘 살피세요. 늘 감사합니다.",
+"오늘도 아르떼의 이름을 걸고 현장에 서 주시는 {n} 기사님께 깊이 감사드립니다. 안전이 최우선입니다. 서두르지 마세요.",
+"{n} 기사님, 봄비 소식이 잦습니다. 노면이 미끄러울 수 있으니 이동 시 여유 있게 출발해 주세요. 오늘도 화이팅입니다.",
+"기사님의 정성 어린 시공 한 건 한 건이 아르떼의 신뢰가 됩니다. {n} 기사님, 오늘도 든든하게 부탁드립니다.",
+"{n} 기사님, 좋은 아침입니다. 오늘 첫 현장부터 마지막 현장까지 순조롭기를 바랍니다. 늘 고맙습니다.",
+"미세먼지 많은 날이 이어집니다, {n} 기사님. 마스크 챙기시고 환기 잘 되는 곳에서 잠시 쉬어 가세요. 건강이 먼저입니다.",
+"{n} 기사님 덕분에 오늘도 어느 집 거실이 환해집니다. 그 수고를 아르떼는 잊지 않겠습니다. 안전한 하루 되세요.",
+"새 학기, 새 출발의 계절입니다. {n} 기사님도 오늘 하루 산뜻하게 시작하시길 바랍니다. 늘 응원합니다.",
+"{n} 기사님, 사다리와 공구 상태 한 번만 더 확인 부탁드립니다. 기사님이 무사한 것이 아르떼에게 가장 중요합니다.",
+"현장에서 만나는 고객님들이 기사님 칭찬을 자주 하십니다. {n} 기사님, 정말 감사합니다. 오늘도 잘 부탁드립니다.",
+"{n} 기사님, 낮이 길어졌습니다. 그래도 무리한 일정은 금물입니다. 힘드시면 언제든 사무실에 말씀 주세요.",
+"오늘도 길 위에서 시작하시는 {n} 기사님, 운전 조심하세요. 도착이 조금 늦어도 괜찮습니다. 안전이 먼저입니다.",
+"{n} 기사님의 성실함이 아르떼의 자산입니다. 오늘 하루도 보람 있게 마무리하시길 바랍니다. 고맙습니다.",
+"바람이 좋은 계절입니다, {n} 기사님. 이동 중 잠깐이라도 창문 열고 숨 돌리는 시간 가지세요. 늘 감사드립니다.",
+"{n} 기사님, 오늘 일정도 안전하게 소화하시길 바랍니다. 자재나 도면에 이상이 있으면 바로 연락 주세요.",
+"봄맞이 시공이 몰리는 시기입니다. {n} 기사님, 무리하지 마시고 페이스 조절 부탁드립니다. 늘 고맙습니다.",
+"{n} 기사님, 오늘도 좋은 하루 되세요. 기사님이 켜는 불빛 하나하나가 누군가의 저녁을 따뜻하게 합니다.",
+"현장이 멀어도 늘 정시에 도착해 주시는 {n} 기사님, 감사합니다. 오늘도 여유 있게 출발하세요.",
+"{n} 기사님, 봄날처럼 기분 좋은 하루 보내시길 바랍니다. 아르떼는 늘 기사님 편입니다."
+],
+summer:[
+"{n} 기사님, 무더위에 정말 고생 많으십니다. 물 자주 드시고 그늘에서 꼭 쉬어 가세요. 아르떼는 기사님 건강이 가장 걱정입니다.",
+"한여름 현장은 특히 힘드시죠. {n} 기사님, 오늘도 감사합니다. 무리하지 마시고 안전하게 마무리해 주세요.",
+"{n} 기사님, 폭염 특보가 잦은 시기입니다. 낮 시간대에는 꼭 휴식을 챙기시고 수분 보충 잊지 마세요.",
+"땀 흘려 일하시는 {n} 기사님 덕분에 아르떼가 있습니다. 오늘 하루도 무탈하게 보내시길 진심으로 바랍니다.",
+"{n} 기사님, 장마철입니다. 노면과 사다리 미끄럼에 특히 조심해 주세요. 서두르는 것보다 안전이 우선입니다.",
+"에어컨 없는 신축 현장은 정말 덥습니다. {n} 기사님, 컨디션 이상하면 즉시 중단하고 연락 주세요. 일정은 조정하면 됩니다.",
+"{n} 기사님, 오늘도 이른 아침부터 감사합니다. 더위가 오기 전 오전에 힘든 작업 먼저 끝내시는 것도 방법입니다.",
+"여름 저녁, 기사님이 켜 놓은 조명 아래서 한 가족이 둘러앉습니다. {n} 기사님, 그 수고에 감사드립니다.",
+"{n} 기사님, 시원한 물 한 병 꼭 챙기셨나요? 오늘도 안전하고 건강하게 하루 보내시길 바랍니다.",
+"습도가 높은 날은 감전 위험도 커집니다. {n} 기사님, 전원 차단 확인 한 번 더 부탁드립니다.",
+"{n} 기사님, 휴가철 교통 정체가 심합니다. 이동 시간 넉넉히 잡으시고 조급해하지 마세요.",
+"무더위 속에서도 웃으며 고객을 대해 주시는 {n} 기사님, 정말 존경스럽습니다. 오늘도 고맙습니다.",
+"{n} 기사님, 소나기 예보가 있습니다. 자재 젖지 않게 살펴 주시고 이동 중 안전 운전 부탁드립니다.",
+"오늘도 더운 현장에서 애써 주실 {n} 기사님께 감사드립니다. 점심 든든히 드시고 힘내세요.",
+"{n} 기사님, 열사병은 순식간에 옵니다. 어지럽거나 메스꺼우면 바로 시원한 곳으로 이동하세요. 부탁드립니다.",
+"휴가 계획은 세우셨는지요, {n} 기사님. 쉬실 때는 푹 쉬셔야 오래갑니다. 오늘도 안전하게 부탁드립니다.",
+"{n} 기사님의 꼼꼼한 마무리 덕에 재방문이 줄었습니다. 정말 감사합니다. 오늘도 잘 부탁드립니다.",
+"{n} 기사님, 여름 해가 깁니다. 그래도 어두워지기 전에 마치실 수 있게 일정 조절해 드리겠습니다.",
+"매미 소리 요란한 아침입니다. {n} 기사님, 오늘 하루도 건강하고 안전하게 보내시길 바랍니다.",
+"{n} 기사님, 차량 내부 온도가 위험할 만큼 오릅니다. 공구와 자재, 그리고 기사님 본인을 잘 챙기세요.",
+"더위에 지치지 않도록 아르떼도 일정 조절에 신경 쓰겠습니다. {n} 기사님, 힘든 점 있으면 꼭 말씀해 주세요.",
+"{n} 기사님, 오늘도 무사히. 그 한마디가 아르떼의 바람입니다. 감사합니다.",
+"태풍 소식이 있는 계절입니다. {n} 기사님, 기상 상황 확인하시고 위험하면 주저 말고 일정을 미루세요.",
+"{n} 기사님, 시원한 아이스커피 한 잔 하시면서 잠시 쉬어 가세요. 오늘도 고생 많으십니다.",
+"땀에 젖은 작업복이 아르떼의 훈장입니다. {n} 기사님, 늘 감사드립니다. 오늘도 안전하게."
+],
+autumn:[
+"{n} 기사님, 선선한 바람이 반가운 아침입니다. 일하기 좋은 계절인 만큼 오늘도 순조로운 하루 되시길 바랍니다.",
+"가을 이사철, 손이 열 개라도 모자라시죠. {n} 기사님, 늘 고맙습니다. 무리하지 마시고 안전하게 부탁드립니다.",
+"{n} 기사님 덕분에 올해도 많은 집이 환해졌습니다. 그 수고에 진심으로 감사드립니다. 오늘도 화이팅입니다.",
+"{n} 기사님, 아침저녁으로 쌀쌀합니다. 겉옷 챙기시고 감기 조심하세요. 건강이 최우선입니다.",
+"하늘이 참 높은 날입니다. {n} 기사님도 오늘 하루 마음 넉넉하게 보내시길 바랍니다. 늘 감사합니다.",
+"{n} 기사님, 해가 점점 짧아집니다. 어두워지기 전에 마무리하실 수 있게 일정 조율하겠습니다.",
+"명절이 다가옵니다. {n} 기사님, 그 전까지 무탈하게 잘 마무리하시길 바랍니다. 늘 고맙습니다.",
+"{n} 기사님의 정성이 담긴 시공은 고객님도 알아보십니다. 오늘도 잘 부탁드립니다. 감사합니다.",
+"가을 단풍처럼 기사님의 하루도 물들기를 바랍니다. {n} 기사님, 안전하고 즐거운 시공 되세요.",
+"{n} 기사님, 이동 거리가 긴 날은 중간에 꼭 쉬어 가세요. 졸음운전이 가장 무섭습니다.",
+"환절기입니다, {n} 기사님. 몸살 기운 있으시면 참지 마시고 말씀해 주세요. 일정은 조정하면 됩니다.",
+"{n} 기사님, 오늘도 아르떼의 얼굴이 되어 주셔서 감사합니다. 좋은 하루 보내세요.",
+"수확의 계절입니다. {n} 기사님이 한 해 동안 쌓아 오신 노고도 결실을 맺기를 바랍니다.",
+"{n} 기사님, 아침 이슬로 사다리가 미끄러울 수 있습니다. 첫 작업 전 한 번만 더 확인 부탁드립니다.",
+"바람이 선선해 일하기 좋은 날입니다. {n} 기사님, 컨디션 좋게 하루 시작하시길 바랍니다.",
+"{n} 기사님, 오늘 일정 중 궁금한 점 있으면 언제든 연락 주세요. 사무실은 늘 열려 있습니다.",
+"고객 응대까지 살뜰히 챙겨 주시는 {n} 기사님, 정말 감사합니다. 오늘도 부탁드립니다.",
+"{n} 기사님, 일교차가 큽니다. 차 안에 담요나 겉옷 하나 두시면 요긴합니다. 건강 챙기세요.",
+"올 한 해도 어느덧 후반입니다. {n} 기사님과 함께해서 든든했습니다. 남은 날들도 잘 부탁드립니다.",
+"{n} 기사님, 오늘도 안전 장비 착용 확인 부탁드립니다. 기사님이 다치면 아르떼도 아픕니다.",
+"가을 저녁 노을처럼 오늘 하루도 곱게 마무리되기를 바랍니다. {n} 기사님, 고맙습니다.",
+"{n} 기사님, 현장에서 무리한 요구를 받으시면 혼자 감당하지 마시고 사무실로 넘겨 주세요.",
+"바쁜 시기일수록 기본이 중요합니다. {n} 기사님, 늘 그러셨듯 오늘도 차분하게 부탁드립니다.",
+"{n} 기사님, 좋은 아침입니다. 오늘 하루도 큰 사고 없이 평온하기를 바랍니다.",
+"한 해의 절반을 훌쩍 넘겼습니다. {n} 기사님, 여기까지 오느라 정말 고생 많으셨습니다."
+],
+winter:[
+"{n} 기사님, 추운 날씨에 정말 고생 많으십니다. 손발 시리지 않게 챙기시고 따뜻한 것 자주 드세요.",
+"영하의 아침입니다. {n} 기사님, 차량 예열과 노면 결빙 꼭 확인하시고 천천히 출발해 주세요.",
+"{n} 기사님, 한 해 동안 정말 감사했습니다. 아르떼가 여기까지 온 건 기사님들 덕분입니다.",
+"찬바람 부는 현장에서 애써 주시는 {n} 기사님께 깊이 감사드립니다. 오늘도 안전이 최우선입니다.",
+"{n} 기사님, 눈길 조심하세요. 늦게 도착하셔도 괜찮습니다. 무사히 도착하시는 게 가장 중요합니다.",
+"연말 마무리 시공이 몰리는 시기입니다. {n} 기사님, 무리하지 마시고 몸 상하지 않게 부탁드립니다.",
+"{n} 기사님, 따뜻한 커피 한 잔의 여유 잊지 마세요. 오늘 하루도 힘내시길 응원합니다.",
+"추위에 손이 곱으면 사고가 나기 쉽습니다. {n} 기사님, 장갑 챙기시고 무리한 고소 작업은 피해 주세요.",
+"{n} 기사님, 새해 복 많이 받으시고 올 한 해도 건강하시길 바랍니다. 늘 함께해 주셔서 감사합니다.",
+"난방 안 되는 신축 현장은 정말 춥습니다. {n} 기사님, 중간중간 몸 녹이시면서 하세요.",
+"{n} 기사님의 한 해 노고에 진심으로 감사드립니다. 오늘 하루도 안전하게 마무리하시길 바랍니다.",
+"{n} 기사님, 해가 일찍 집니다. 어두운 현장에서는 조명 확보부터 하시고 작업해 주세요.",
+"겨울 저녁, 기사님이 달아 준 등 아래서 가족이 모입니다. {n} 기사님, 그 일이 참 귀합니다.",
+"{n} 기사님, 감기 조심하세요. 몸이 안 좋으시면 참지 마시고 바로 말씀해 주세요.",
+"매서운 날씨에도 약속 시간을 지켜 주시는 {n} 기사님, 정말 감사합니다. 오늘도 부탁드립니다.",
+"{n} 기사님, 블랙아이스가 가장 무섭습니다. 다리 위와 그늘진 도로에서 특히 조심해 주세요.",
+"한 해를 마무리하며 {n} 기사님께 고마운 마음 전합니다. 내년에도 잘 부탁드립니다.",
+"{n} 기사님, 오늘도 든든하게 하루를 시작해 주셔서 감사합니다. 안전한 시공 되세요.",
+"명절 준비로 분주하시죠. {n} 기사님, 일정 조율 필요하시면 언제든 편하게 말씀해 주세요.",
+"{n} 기사님, 실내외 온도차로 결로가 생길 수 있습니다. 자재 상태 한 번 확인 부탁드립니다.",
+"추운 날 뜨거운 국물 한 그릇이 최고입니다. {n} 기사님, 점심 꼭 챙겨 드세요.",
+"{n} 기사님, 올겨울도 무사히 나시길 바랍니다. 아르떼는 늘 기사님 편입니다.",
+"{n} 기사님, 오늘 하루도 안전하고 따뜻한 하루 되시길 바랍니다. 늘 감사드립니다.",
+"연말연시 도로가 혼잡합니다. {n} 기사님, 여유 있게 출발하시고 마음도 여유 있게 가지세요.",
+"{n} 기사님, 새로운 한 해에도 건강과 행운이 가득하시길 바랍니다. 함께해 주셔서 고맙습니다."
+]};
+/* 특별한 날은 그날에 맞는 인사가 먼저 나옵니다 */
+const SPECIAL={
+"01-01":"{n} 기사님, 새해 첫날입니다. 지난 한 해 정말 고생 많으셨고, 새해에는 건강과 좋은 일만 가득하시길 바랍니다.",
+"03-01":"삼일절입니다. {n} 기사님, 오늘 일정이 있으시다면 더욱 감사드립니다. 안전한 하루 되세요.",
+"05-01":"근로자의 날입니다. 현장을 지켜 주시는 {n} 기사님의 노고에 진심으로 감사드립니다.",
+"05-05":"어린이날입니다. {n} 기사님, 가족과 좋은 시간 보내시길 바라며 일정이 있으시면 안전하게 부탁드립니다.",
+"05-08":"어버이날입니다. {n} 기사님, 오늘도 누군가의 든든한 가족으로 애써 주셔서 감사합니다.",
+"06-06":"현충일입니다. {n} 기사님, 잠시 마음을 모으는 하루 되시길 바랍니다. 오늘도 안전 먼저입니다.",
+"08-15":"광복절입니다. {n} 기사님, 뜻깊은 하루 보내시고 더위에 건강 챙기세요.",
+"10-03":"개천절입니다. {n} 기사님, 편안한 하루 보내시길 바랍니다. 늘 감사드립니다.",
+"10-09":"한글날입니다. {n} 기사님, 오늘도 좋은 하루 되세요. 기사님 덕분에 아르떼가 있습니다.",
+"12-24":"성탄 전야입니다. {n} 기사님이 켜 주신 조명 아래 따뜻한 저녁이 있기를 바랍니다.",
+"12-25":"메리 크리스마스, {n} 기사님! 오늘 하루는 조금 더 따뜻하고 편안하시길 바랍니다.",
+"12-31":"한 해의 마지막 날입니다. {n} 기사님, 올 한 해 정말 고생 많으셨습니다. 진심으로 감사드립니다."
+};
+/* 하루 일정을 모두 마쳤을 때 뜨는 마무리 인사 (일반 20 · 고된 하루 10) */
+const CLOSINGS={
+normal:[
+"{n} 기사님, 오늘 하루도 무사히 마치셨습니다. 정말 고생 많으셨습니다. 편안한 저녁 보내세요.",
+"오늘 일정 모두 마무리되었습니다. {n} 기사님 덕분에 또 한 집이 환해졌습니다. 감사합니다.",
+"{n} 기사님, 수고 많으셨습니다. 오늘의 땀이 아르떼의 신뢰가 됩니다. 푹 쉬세요.",
+"고생하셨습니다, {n} 기사님. 안전하게 마치신 것이 무엇보다 반갑습니다. 조심히 귀가하세요.",
+"{n} 기사님, 오늘도 끝까지 책임져 주셔서 감사합니다. 저녁은 꼭 든든하게 드세요.",
+"오늘 일정 완료입니다. {n} 기사님, 어깨 좀 펴시고 천천히 돌아가세요. 정말 고맙습니다.",
+"{n} 기사님의 하루가 누군가의 집을 밝혔습니다. 오늘도 수고 많으셨습니다.",
+"무사히 마치셨습니다, {n} 기사님. 돌아가시는 길도 안전 운전 부탁드립니다.",
+"{n} 기사님, 오늘 하루 참 잘하셨습니다. 내일은 또 내일의 몫이니 오늘은 편히 쉬세요.",
+"오늘도 한 건 한 건 정성껏 해 주셔서 감사합니다. {n} 기사님, 고생 많으셨습니다.",
+"{n} 기사님, 마지막 현장까지 마치느라 애쓰셨습니다. 따뜻한 물로 피로 푸시길 바랍니다.",
+"일정 완료입니다. {n} 기사님, 오늘 하루도 아르떼의 얼굴이 되어 주셔서 고맙습니다.",
+"{n} 기사님, 무탈하게 끝나서 다행입니다. 오늘 밤은 푹 주무시고 내일 뵙겠습니다.",
+"수고하셨습니다, {n} 기사님. 기사님이 남긴 기록은 사무실에서 잘 챙기겠습니다.",
+"{n} 기사님, 오늘도 약속을 지켜 주셔서 감사합니다. 귀갓길 조심하세요.",
+"오늘 하루도 고생 많으셨습니다. {n} 기사님, 가족과 편안한 저녁 보내시길 바랍니다.",
+"{n} 기사님, 오늘 일정 모두 끝났습니다. 스스로에게 잘했다고 한마디 해 주세요.",
+"현장에서 애쓰신 {n} 기사님, 진심으로 감사합니다. 내일도 잘 부탁드립니다.",
+"{n} 기사님, 마무리까지 깔끔하셨습니다. 그 꼼꼼함이 재방문을 줄입니다. 고맙습니다.",
+"오늘 하루 수고 많으셨습니다, {n} 기사님. 아르떼는 늘 기사님 편입니다."
+],
+hard:[
+"{n} 기사님, 오늘 특히 고된 하루였습니다. 끝까지 해내 주셔서 정말 감사합니다. 오늘은 꼭 푹 쉬세요.",
+"긴 이동에 여러 현장까지, {n} 기사님 정말 고생 많으셨습니다. 무리하신 만큼 내일은 여유 있게 잡아 드리겠습니다.",
+"{n} 기사님, 예정보다 늦어졌는데도 마무리해 주셔서 감사합니다. 저녁 꼭 챙겨 드시고 푹 쉬세요.",
+"오늘 같은 날은 몸이 많이 상합니다. {n} 기사님, 무리한 일정은 언제든 사무실에 말씀해 주세요.",
+"{n} 기사님, 오늘 하루 정말 수고 많으셨습니다. 이런 날일수록 안전하게 돌아오시는 게 가장 중요합니다.",
+"쉽지 않은 하루였습니다. 끝까지 책임져 주신 {n} 기사님께 고개 숙여 감사드립니다.",
+"{n} 기사님, 늦은 시간까지 애쓰셨습니다. 귀갓길 졸음운전 조심하시고 중간에 꼭 쉬어 가세요.",
+"오늘 몫 이상을 해 주셨습니다, {n} 기사님. 그 수고 아르떼가 기억하겠습니다.",
+"{n} 기사님, 힘든 일정이었는데 무사히 마쳐 주셔서 고맙습니다. 오늘은 아무 생각 없이 쉬세요.",
+"장거리에 긴 작업까지, {n} 기사님 정말 대단하십니다. 몸 상하지 않게 회복 먼저 챙기세요."
+]};
+const SEASON_NAME={spring:"봄",summer:"여름",autumn:"가을",winter:"겨울"};
+function seasonOf(m){return (m>=2&&m<=4)?"spring":(m>=5&&m<=7)?"summer":(m>=8&&m<=10)?"autumn":"winter";}
+/* 계절 블록 식별자 — 3개월마다 바뀝니다 */
+function blockId(d){
+  const s=seasonOf(d.getMonth());
+  const y=(s==="winter"&&d.getMonth()<2)?d.getFullYear()-1:d.getFullYear();
+  return y+"-"+s;
+}
+
+/* ===================== 상태 ===================== */
+const SCHED="arte-tech-app-v1", ARCH="arte-tech-archive-v1", GREET="arte-tech-greet-v1";
+const DN=["일","월","화","수","목","금","토"];
+const TCOLOR={"조명":"#2f5aa8","목공":"#8a5a12","도배":"#2b6f7d","전기":"#5b3f8f","기타":"#6a788d"};
+const EXKINDS=["유류비","통행료","주차비","식대","숙박비","자재·부자재","폐기물 처리","장비 임차","기타"];
+const DELAY_KINDS=["교통 정체","사고 · 차량 문제","현장 대기(엘리베이터·입주)","고객 부재","자재 문제","선행 공정 지연","작업 추가","기타"];
+let D=null;            // 사무실에서 받은 일정
+let A={items:[]};      // 내 시공 기록 (계속 쌓임)
+let G=null;            // 인사말 상태
+let dayIdx=0, screen="greet", saveOK=true;
+
+const $=id=>document.getElementById(id);
+const m2s=m=>String(Math.floor(m/60)%24).padStart(2,"0")+":"+String(Math.round(m%60)).padStart(2,"0");
+const dur2s=m=>{m=Math.round(m);const h=Math.floor(m/60),mm=m%60;return (h?h+"시간 ":"")+(mm||!h?mm+"분":"");};
+const won=n=>(Math.round(n||0)).toLocaleString("ko-KR")+"원";
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const ymd=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+function toast(t){const el=$("toast");el.textContent=t;el.hidden=false;clearTimeout(el._t);el._t=setTimeout(()=>el.hidden=true,1900);}
+
+async function put(k,v){try{if(window.storage){await window.storage.set(k,JSON.stringify(v));saveOK=true;return;}saveOK=false;}catch(e){saveOK=false;}}
+async function get(k){try{if(window.storage){const r=await window.storage.get(k);if(r&&r.value)return JSON.parse(r.value);}}catch(e){}return null;}
+let t1=null,t2=null;
+function save(){if(D)D.dirty=true;clearTimeout(t1);t1=setTimeout(()=>put(SCHED,D),250);}
+function saveArch(){clearTimeout(t2);t2=setTimeout(()=>put(ARCH,A),250);}
+function flush(){clearTimeout(t1);clearTimeout(t2);if(D)put(SCHED,D);put(ARCH,A);}
+document.addEventListener("visibilitychange",()=>{if(document.hidden)flush();});
+window.addEventListener("pagehide",flush);
+window.addEventListener("beforeunload",e=>{
+  flush();
+  if(D&&makeReport().items.length&&(!D.reportedAt||D.dirty)){e.preventDefault();e.returnValue="";return "";}
+});
+
+/* ===================== 인사말 고르기 ===================== */
+function pickGreeting(name){
+  const now=new Date(), today=ymd(now);
+  const md=today.slice(5);
+  if(G&&G.date===today&&G.text) return G;                 // 같은 날엔 같은 인사말
+  const blk=blockId(now), season=seasonOf(now.getMonth());
+  let seen=(G&&G.block===blk&&Array.isArray(G.seen))?G.seen.slice():[];
+  let text, idx=-1, special=false;
+  if(SPECIAL[md]){ text=SPECIAL[md]; special=true; }
+  else{
+    const pool=GREETINGS[season];
+    let left=pool.map((_,i)=>i).filter(i=>!seen.includes(i));
+    if(!left.length){ seen=[]; left=pool.map((_,i)=>i).filter(i=>i!==(G&&G.idx)); } // 한 바퀴 돌면 초기화
+    idx=left[Math.floor(Math.random()*left.length)];
+    seen.push(idx);
+    text=pool[idx];
+  }
+  G={date:today,block:blk,season,seen,idx,text,special,name:name||(G&&G.name)||""};
+  put(GREET,G);
+  return G;
+}
+/* 이름을 모를 때도 문장이 어색하지 않게 채웁니다 */
+function fillName(t,name){
+  if(name) return t.replace(/\{n\}/g,name);
+  return t.replace(/시공 기사 \{n\}님/g,"시공 기사님")
+          .replace(/\{n\}\s*기사님/g,"기사님")
+          .replace(/\{n\}님/g,"기사님")
+          .replace(/\{n\}/g,"기사님");
+}
+function pickClosing(name,dateKey,hard){
+  const pool=CLOSINGS[hard?"hard":"normal"], tag=(hard?"h":"n");
+  if(G&&G.close&&G.close.date===dateKey&&G.close.tag===tag) return fillName(G.close.text,name);
+  let seen=(G&&G.close&&G.close.tag===tag&&Array.isArray(G.close.seen))?G.close.seen.slice():[];
+  let left=pool.map((_,i)=>i).filter(i=>!seen.includes(i));
+  if(!left.length){seen=[];left=pool.map((_,i)=>i).filter(i=>i!==(G&&G.close&&G.close.idx));}
+  const idx=left[Math.floor(Math.random()*left.length)];
+  seen.push(idx);
+  G=G||{}; G.close={date:dateKey,tag,idx,seen,text:pool[idx]};
+  put(GREET,G);
+  return fillName(pool[idx],name);
+}
+function daySummary(day){
+  const works=day.items.filter(x=>x.k==="work");
+  const finish=works.length?Math.max(...day.items.map(x=>x.e)):0;
+  return {
+    works, done:works.filter(x=>x.job.status==="완료").length,
+    all:works.length>0&&works.every(x=>x.job.status==="완료"),
+    finish, over:!!(day.work&&finish>day.work[1]),
+    work:works.reduce((a,x)=>a+(x.e-x.s),0),
+    travel:day.items.filter(x=>x.k==="move").reduce((a,x)=>a+(x.e-x.s),0),
+    pay:works.reduce((a,x)=>a+(+x.job.pay||0),0),
+    exp:works.reduce((a,x)=>a+(x.expenses||[]).reduce((b,y)=>b+(+y.amount||0),0),0),
+    delay:works.reduce((a,x)=>a+(x.delays||[]).reduce((b,y)=>b+y.min,0),0)
+  };
+}
+function greetLine(){
+  const h=new Date().getHours();
+  return h<5?"늦은 시간까지 고생이 많으십니다":h<11?"좋은 아침입니다":h<14?"오늘도 수고 많으십니다":h<18?"오후도 힘내세요":"오늘 하루도 고생 많으셨습니다";
+}
+
+/* ===================== 시공 기록 ===================== */
+function archiveKey(it,date){return (it.job.id||0)+"@"+date;}
+/* 완료된 건과 보고 내용을 기록으로 남깁니다 (일정 파일이 바뀌어도 유지) */
+function syncArchive(){
+  if(!D) return;
+  let n=0;
+  D.days.forEach(day=>day.items.forEach(it=>{
+    if(it.k!=="work") return;
+    const j=it.job;
+    if(j.status!=="완료" && !(it.expenses&&it.expenses.length) && !it.memo) return;
+    const key=archiveKey(it,day.date);
+    const rec={key,date:day.date,tech:D.tech.name,
+      name:j.name,dong:j.dong||"",ho:j.ho||"",addr:j.addr,trade:j.trade,kind:j.kind,
+      start:m2s(it.s),end:m2s(it.e),dur:j.dur,pay:+j.pay||0,status:j.status,
+      note:j.note||"",memo:it.memo||"",matLine:j.matLine||"",matDone:!!j.matDone,
+      delays:(it.delays||[]).map(x=>({kind:x.kind,min:x.min})),
+      expenses:(it.expenses||[]).map(x=>({kind:x.kind,amount:x.amount})),
+      extra:it.extraReq?it.extraReq.memo:"",
+      file:j.file||"",savedAt:new Date().toISOString()};
+    const i=A.items.findIndex(x=>x.key===key);
+    if(i<0){A.items.push(rec);n++;} else A.items[i]=Object.assign(A.items[i],rec);
+  }));
+  A.items.sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:0);
+  saveArch();
+  return n;
+}
+
+/* ===================== 화면 ===================== */
+function render(){
+  $("nav").hidden = !(D || A.items.length);
+  document.querySelectorAll("[data-nav]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.nav===screen));
+  $("topbar").hidden = (screen==="greet");
+  if(screen==="greet"){renderGreet();return;}
+  if(screen==="archive"){renderArchive();return;}
+  if(screen==="done"){renderDone();return;}
+  if(!D){renderIntro();return;}
+  const day=D.days[dayIdx];
+  const tabs=D.days.map((d,i)=>{
+    const dd=new Date(d.date+"T00:00:00");
+    const cnt=d.items.filter(x=>x.k==="work").length;
+    return `<button data-day="${i}" aria-pressed="${i===dayIdx}">${dd.getMonth()+1}/${dd.getDate()} (${DN[d.dow]})
+      <span class="n">${d.off?d.off.split(" ")[0]:d.nowork?"비번":cnt?cnt+"건":"없음"}</span></button>`;
+  }).join("");
+  const pend=makeReport().items.length;
+  const warn=(!saveOK?`<div class="warnbar">이 기기에 자동 저장이 되지 않습니다. 기록 후 바로 보고 파일을 보내 주세요.</div>`:"")+
+    (pend&&(!D.reportedAt||D.dirty)?`<div class="warnbar" style="background:var(--tight-bg);border-color:#e6cf9a;color:#7d5608">
+      아직 사무실로 보내지 않은 기록이 ${pend}건 있습니다. 아래 <b>보고 파일 보내기</b>를 눌러 주세요.</div>`:"");
+  $("root").innerHTML=
+    (D.days.length>1?`<div class="days">${tabs}</div>`:"")+warn+renderDay(day)+
+    `<div class="foot">
+       <button data-report>사무실로 보고 파일 보내기</button>
+       <button class="ghost" data-copy>하루 일정 문자로 복사</button>
+     </div>`;
+}
+function renderGreet(){
+  const name=(D&&D.tech&&D.tech.name)||(G&&G.name)||"";
+  const g=pickGreeting(name);
+  const now=new Date();
+  const txt=fillName(g.text,name);
+  $("root").innerHTML=`<div class="greet">
+    <div class="logo">ARTE LIGHTING</div>
+    <div class="day">${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일 ${DN[now.getDay()]}요일 · ${SEASON_NAME[g.season]}</div>
+    <div class="hi">${esc(greetLine())}${name?`,<br>${esc(name)} 기사님`:""}</div>
+    <div class="msg">${esc(txt)}</div>
+    <div class="sign">아르떼조명 드림</div>
+    <button class="go" data-enter>${D?"오늘 일정 보기":"일정 파일 불러오기"}</button>
+    ${D?`<button class="sub" data-loadnew>새 일정 파일 불러오기</button>`:
+        (A.items.length?`<button class="sub" data-goarch>내 시공 기록 보기</button>`:"")}
+  </div>`;
+}
+function renderDone(){
+  const day=D.days[dayIdx], s=daySummary(day);
+  const hard=s.over||s.works.length>=3||s.travel>=180||s.delay>=60;
+  const name=D.tech.name;
+  const d=new Date(day.date+"T00:00:00");
+  $("root").innerHTML=`<div class="greet" style="background:linear-gradient(165deg,#14261f 0%,#1c3a2c 45%,#186b4f 100%)">
+    <div class="logo">ARTE LIGHTING</div>
+    <div class="day">${d.getMonth()+1}월 ${d.getDate()}일 (${DN[day.dow]}) 일정 완료</div>
+    <div class="hi">오늘 하루도<br>고생 많으셨습니다</div>
+    <div class="msg">${esc(pickClosing(name,day.date,hard))}</div>
+    <dl class="sum" style="margin:24px 0 0">
+      <div style="background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.14)">
+        <dt style="color:#a9c6b8">완료</dt><dd style="color:#fff">${s.done}건</dd></div>
+      <div style="background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.14)">
+        <dt style="color:#a9c6b8">작업</dt><dd style="color:#fff;font-size:15px">${dur2s(s.work)}</dd></div>
+      <div style="background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.14)">
+        <dt style="color:#a9c6b8">이동</dt><dd style="color:#fff;font-size:15px">${dur2s(s.travel)}</dd></div>
+    </dl>
+    ${(s.pay||s.exp)?`<div class="sign" style="border-top-color:rgba(255,255,255,.18)">
+      오늘 수당 ${won(s.pay)}${s.exp?` · 경비 ${won(s.exp)}`:""}${s.delay?` · 지연 ${s.delay}분`:""}</div>`:""}
+    <button class="go" data-report>사무실로 보고 파일 보내기</button>
+    <button class="sub" data-back>일정 다시 보기</button>
+    <button class="sub" data-goarch>내 시공 기록 보기</button>
+  </div>`;
+}
+function renderIntro(){
+  $("root").innerHTML=`<div class="intro">
+    <h1>일정 파일을 불러와 주세요</h1>
+    <p>사무실에서 카톡이나 메일로 보내드린 <b>아르떼일정_이름_날짜.json</b> 파일을 여시면 그날 일정이 표시됩니다.</p>
+    <ol>
+      <li>카톡·메일에서 받은 파일을 휴대폰에 저장</li>
+      <li>아래 버튼을 눌러 그 파일을 선택</li>
+      <li>자재 수령 · 일정 확인 → 완료·지연 체크</li>
+      <li>경비(주유·식대·숙박)와 추가 작업 입력</li>
+      <li>퇴근 전 <b>보고 파일</b>을 사무실로 전송</li>
+    </ol>
+    <button class="big" data-load>일정 파일 불러오기</button>
+    <p style="margin-top:16px;font-size:13px;color:var(--ink-3)">한 번 불러오면 이 휴대폰에 저장되어, 앱을 다시 열어도 그대로 남아 있습니다.
+      완료한 시공은 <b>내 시공 기록</b>에 계속 쌓입니다.</p>
+  </div>`;
+}
+function renderDay(day){
+  const d=new Date(day.date+"T00:00:00");
+  const head=extra=>`<div class="head"><b>${esc(D.tech.name)} 기사님</b>
+    <div class="sub">${d.getMonth()+1}월 ${d.getDate()}일 (${DN[day.dow]})${day.holiday?" · "+esc(day.holiday):""}
+      ${day.work?" · 근무 "+m2s(day.work[0])+"–"+m2s(day.work[1]):""}</div>
+    <div class="stat">${extra}</div></div>`;
+  if(day.off) return head(`<span>${esc(day.off)}</span>`)+`<div class="empty">${esc(day.off)} 입니다.</div>`;
+  if(day.nowork) return head(`<span>비근무일</span>`)+`<div class="empty">${DN[day.dow]}요일은 근무일이 아닙니다.</div>`;
+  const works=day.items.filter(x=>x.k==="work");
+  if(!works.length) return head(`<span>일정 없음</span>`)+`<div class="empty">이 날짜에 배정된 작업이 없습니다.</div>`;
+  const finish=Math.max(...day.items.map(x=>x.e));
+  const over=day.work&&finish>day.work[1];
+  const travel=day.items.filter(x=>x.k==="move").reduce((s,x)=>s+(x.e-x.s),0);
+  const work=works.reduce((s,x)=>s+(x.e-x.s),0);
+  const doneN=works.filter(x=>x.job.status==="완료").length;
+  const payTot=works.reduce((a,x)=>a+(+x.job.pay||0),0);
+  const expTot=works.reduce((a,x)=>a+(x.expenses||[]).reduce((b,y)=>b+(+y.amount||0),0),0);
+  const stat=`<span>${doneN}/${works.length}건 완료</span><span>작업 ${dur2s(work)}</span>
+    <span>이동 ${dur2s(travel)}</span><span class="${over?"warn":""}">종료 ${m2s(finish)}${over?" 초과":""}</span>
+    ${payTot?`<span>수당 ${won(payTot)}</span>`:""}${expTot?`<span>경비 ${won(expTot)}</span>`:""}`;
+  const body=day.items.map((it,idx)=>{
+    if(it.k==="move") return `<div class="move"><i style="background:${sev(it.f)}"></i>${esc(it.label)} · ${esc(it.sub)}</div>`;
+    if(it.k==="mat") return `<div class="move" style="color:#5b3f8f;font-weight:700">
+      <i style="background:#7a5ba8"></i>${esc(it.label)} ${m2s(it.s)}–${m2s(it.e)} · ${esc(it.sub)}
+      ${it.addr?`<a href="https://map.kakao.com/link/search/${encodeURIComponent(it.addr)}" target="_blank" rel="noopener">길찾기</a>`:""}</div>`;
+    if(it.k==="rest") return `<div class="move"><i style="background:#97a5b7"></i>점심 ${m2s(it.s)}–${m2s(it.e)}</div>`;
+    if(it.k==="wait") return `<div class="move"><i style="background:#c3ccd7"></i>현장 대기 ${esc(it.sub)}</div>`;
+    if(it.k==="issue") return `<div class="move" style="color:var(--stop)"><i style="background:#a53226"></i>${esc(it.label)} ${esc(it.sub)}</div>`;
+    const j=it.job, dly=(it.delays||[]).reduce((s,x)=>s+x.min,0);
+    return `<div class="card ${j.status==="완료"?"done":""}">
+      <div class="top" style="background:${TCOLOR[j.trade]||"#6a788d"}">
+        <b>${esc(j.name)}${j.dong?" "+esc(j.dong):""}${j.ho?" "+esc(j.ho):""}</b>
+        <span class="t">${m2s(it.s)}</span></div>
+      <div class="in">
+        <dl style="margin:0">
+          <div class="r"><dt>시간</dt><dd>${m2s(it.s)} ~ ${m2s(it.e)} (${j.dur}분${dly?` +지연 ${dly}분`:""})</dd></div>
+          <div class="r"><dt>공종</dt><dd><span class="chipx" style="background:${(TCOLOR[j.trade]||"#6a788d")}1f;color:${TCOLOR[j.trade]||"#6a788d"}">${esc(j.trade)}</span>${esc(j.kind)}</dd></div>
+          <div class="r"><dt>주소</dt><dd>${esc(j.addr)}</dd></div>
+          ${j.phone?`<div class="r"><dt>고객</dt><dd>${esc(j.phone)}</dd></div>`:""}
+          ${j.fixed!=null?`<div class="r"><dt>지정</dt><dd>고객 지정 ${m2s(j.fixed)}</dd></div>`:""}
+        </dl>
+        ${j.matLine?`<div class="mat"><b>자재 수령${j.matSrc?" · "+esc(j.matSrc):""}</b>${esc(j.matLine)}
+          <div class="mrow2">
+            ${/본사|직접/.test(j.matSrc||"")?`<a href="https://map.kakao.com/link/search/${encodeURIComponent(j.matLine.split(" · ").pop())}" target="_blank" rel="noopener">수령처 길찾기</a>`:""}
+            <button class="${j.matDone?"on":""}" data-mat="${idx}">${j.matDone?"수령 완료 ✓":"수령 완료 체크"}</button>
+          </div></div>`:""}
+        ${j.note?`<div class="note"><b>특이사항</b>${esc(j.note)}</div>`:""}
+        ${dly?`<div class="delaytag">지연 보고 +${dly}분 · ${esc((it.delays||[]).map(x=>x.kind).join(", "))}</div>`:""}
+        <div class="acts">
+          ${j.phone?`<a href="tel:${esc(j.phone)}">고객 전화</a>`:""}
+          <a href="https://map.kakao.com/link/search/${encodeURIComponent(j.addr)}" target="_blank" rel="noopener">길찾기</a>
+          ${j.plan?`<a href="${esc(j.plan)}" target="_blank" rel="noopener">도면 보기</a>`:""}
+          ${j.folder?`<a href="${esc(j.folder)}" target="_blank" rel="noopener">사진 업로드</a>`:""}
+          <button class="${j.status==="완료"?"undo":"prim"}" data-done="${idx}">${j.status==="완료"?"완료 취소":"작업 완료"}</button>
+        </div>
+        ${j.status==="완료"?"":`<div class="dl">
+          <div class="lab">일정이 밀리면 눌러 주세요 — 뒤 일정이 자동으로 조정됩니다</div>
+          <select data-kind="${idx}">${DELAY_KINDS.map(k=>`<option>${k}</option>`).join("")}</select>
+          <div class="btns">
+            <button data-delay="${idx}" data-min="15">＋15분</button>
+            <button data-delay="${idx}" data-min="30">＋30분</button>
+            <button data-delay="${idx}" data-min="60">＋60분</button>
+          </div></div>`}
+        ${j.pay?`<div style="margin-top:11px"><span class="paytag">이 건 수당 ${won(j.pay)}</span></div>`:""}
+        <div class="lab2">현장에서 쓴 경비</div>
+        ${(it.expenses||[]).length?`<div class="explist">${it.expenses.map((x,k)=>
+          `<div class="exprow"><span class="chipx">${esc(x.kind)}</span>${esc(x.memo||"")}
+            <b>${won(x.amount)}</b><button data-delexp="${idx}-${k}">×</button></div>`).join("")}</div>`:""}
+        <div class="sub2">
+          <select data-exkind="${idx}">${EXKINDS.map(k=>`<option>${k}</option>`).join("")}</select>
+          <input type="number" inputmode="numeric" data-examt="${idx}" placeholder="금액">
+          <button data-addexp="${idx}">추가</button>
+        </div>
+        <div class="lab2">추가 작업 발생</div>
+        <div class="sub2">
+          <input data-exmemo="${idx}" placeholder="예: 매립등 2개 추가" value="${esc((it.extraReq||{}).memo||"")}">
+          <input type="number" inputmode="numeric" data-exfee="${idx}" placeholder="금액(선택)" value="${(it.extraReq||{}).amount||""}">
+          <button data-addextra="${idx}">보고</button>
+        </div>
+        ${j.folder?`<div class="lab2" style="font-weight:500;color:var(--ink-3)">사진 파일명: ${esc(j.file)}_01</div>`:""}
+        <textarea class="memo" data-memo="${idx}" placeholder="현장 메모 (사무실에 함께 전달됩니다)">${esc(it.memo||"")}</textarea>
+      </div></div>`;
+  }).join("");
+  const sm=daySummary(day);
+  const donecard=sm.all?`<div class="list" style="padding-bottom:0"><div class="card" style="border-color:#b7ddcc;background:var(--go-bg)">
+    <div class="in"><b style="font-size:16px;color:var(--go)">오늘 일정 모두 완료</b>
+      <div style="font-size:14px;margin-top:6px;color:var(--ink-2);word-break:keep-all">${esc(pickClosing(D.tech.name,day.date,sm.over||sm.works.length>=3||sm.travel>=180))}</div>
+      <div class="acts"><button data-showdone>마무리 화면 보기</button>
+        <button class="prim" data-report>보고 파일 보내기</button></div></div></div></div>`:"";
+  return head(stat)+donecard+`<div class="list">${body}
+    <div class="end">종료 예정 ${m2s(finish)}${day.work?" · 근무 종료 "+m2s(day.work[1]):""}${over?" · 시간 초과":""}</div></div>`;
+}
+const sev=f=>!f?"#7ba33a":f<0.95?"#2f7d5e":f<1.10?"#7ba33a":f<1.25?"#c99a1e":f<1.42?"#c8722a":"#b3392f";
+
+function renderArchive(){
+  const items=A.items;
+  if(!items.length){
+    $("root").innerHTML=`<div class="empty" style="padding:60px 24px">
+      <div style="font-size:40px;margin-bottom:12px">🗂</div>
+      아직 쌓인 시공 기록이 없습니다.<br>작업을 <b>완료</b>로 체크하면 이곳에 남습니다.</div>`;
+    return;
+  }
+  const cnt=items.length;
+  const pay=items.reduce((a,x)=>a+(+x.pay||0),0);
+  const exp=items.reduce((a,x)=>a+(x.expenses||[]).reduce((b,y)=>b+(+y.amount||0),0),0);
+  const byMon={};
+  items.forEach(x=>{const k=x.date.slice(0,7);(byMon[k]=byMon[k]||[]).push(x);});
+  const months=Object.keys(byMon).sort().reverse();
+  $("root").innerHTML=`<div class="arch">
+    <dl class="sum" style="margin-top:0">
+      <div><dt>총 시공</dt><dd>${cnt}건</dd></div>
+      <div><dt>누적 수당</dt><dd style="font-size:15px">${won(pay)}</dd></div>
+      <div><dt>누적 경비</dt><dd style="font-size:15px">${won(exp)}</dd></div>
+    </dl>
+    ${months.map(mk=>{
+      const list=byMon[mk], mp=list.reduce((a,x)=>a+(+x.pay||0),0);
+      return `<div class="mon">${mk.slice(0,4)}년 ${+mk.slice(5)}월
+        <span>${list.length}건 · ${won(mp)}</span></div>
+      ${list.map(x=>`<div class="rec" style="border-left-color:${TCOLOR[x.trade]||"#6a788d"}">
+        <div class="t1"><b>${esc(x.name)}${x.dong?" "+esc(x.dong):""}${x.ho?" "+esc(x.ho):""}</b>
+          <span class="d">${x.date.slice(5)} ${x.start}</span></div>
+        <div class="t2"><span class="chipx" style="background:${(TCOLOR[x.trade]||"#6a788d")}1f;color:${TCOLOR[x.trade]||"#6a788d"}">${esc(x.trade)}</span>
+          ${esc(x.kind)} · ${x.dur}분 ${x.pay?"· "+won(x.pay):""} ${x.status==="완료"?"":"· <b style=color:var(--stop)>미완료</b>"}</div>
+        <div class="t2" style="color:var(--ink-3)">${esc(x.addr||"")}</div>
+        ${(x.delays||[]).length?`<div class="t3">지연 ${x.delays.reduce((a,y)=>a+y.min,0)}분 · ${esc(x.delays.map(y=>y.kind).join(", "))}</div>`:""}
+        ${(x.expenses||[]).length?`<div class="t3">경비 ${esc(x.expenses.map(y=>y.kind+" "+won(y.amount)).join(", "))}</div>`:""}
+        ${x.matLine?`<div class="t3">자재 ${esc(x.matLine)}${x.matDone?" · 수령 확인":""}</div>`:""}
+        ${x.memo?`<div class="t3">메모 ${esc(x.memo)}</div>`:""}
+        ${x.extra?`<div class="t3">추가작업 ${esc(x.extra)}</div>`:""}
+      </div>`).join("")}`;}).join("")}
+    <div class="foot" style="padding:14px 0 0">
+      <button class="ghost" data-archfile>기록 파일로 저장</button>
+      <button class="ghost" data-archcopy>이번 달 기록 문자로 복사</button>
+    </div>
+  </div>`;
+}
+
+/* ===================== 동작 ===================== */
+function addDelay(idx,min,kind){
+  const day=D.days[dayIdx], it=day.items[idx];
+  it.delays=it.delays||[];
+  it.delays.push({kind,min,ts:new Date().toISOString()});
+  it.e+=min;
+  for(let i=idx+1;i<day.items.length;i++){day.items[i].s+=min;day.items[i].e+=min;}
+  save();syncArchive();render();
+  toast(`${kind} +${min}분 반영`);
+}
+function dayText(){
+  const day=D.days[dayIdx], d=new Date(day.date+"T00:00:00");
+  const out=[`[아르떼조명] ${D.tech.name} 기사님 일정`,`${d.getMonth()+1}월 ${d.getDate()}일 (${DN[day.dow]})`,""];
+  day.items.forEach(it=>{
+    if(it.k==="move") out.push(`  ↓ ${it.label} ${it.sub}`);
+    else if(it.k==="mat") out.push(`  ■ ${it.label} ${m2s(it.s)}-${m2s(it.e)} ${it.sub}`);
+    else if(it.k==="work"){
+      const j=it.job;
+      out.push(`${m2s(it.s)}-${m2s(it.e)} ${j.name} ${j.dong||""} ${j.ho||""}`.trim());
+      out.push(`   ${j.trade} ${j.kind} · ${j.addr}`);
+      if(j.matLine) out.push(`   [자재] ${j.matLine}`);
+      if(j.note) out.push(`   ※ ${j.note}`);
+    }
+  });
+  const finish=Math.max(...day.items.map(x=>x.e));
+  out.push("",`종료 예정 ${m2s(finish)}`);
+  return out.join("\n");
+}
+function archText(){
+  const mk=(A.items[0]||{}).date?A.items[0].date.slice(0,7):"";
+  const list=A.items.filter(x=>x.date.slice(0,7)===mk);
+  const out=[`[아르떼조명] ${A.items[0]?A.items[0].tech:""} 기사 시공 기록`,
+    `${mk.slice(0,4)}년 ${+mk.slice(5)}월 · ${list.length}건`,""];
+  list.forEach(x=>out.push(`${x.date.slice(5)} ${x.name} ${x.dong||""} ${x.ho||""} / ${x.trade} ${x.kind}${x.pay?" / "+won(x.pay):""}`.replace(/\s+/g," ")));
+  out.push("",`수당 합계 ${won(list.reduce((a,x)=>a+(+x.pay||0),0))}`);
+  return out.join("\n");
+}
+function makeReport(){
+  const items=[];
+  if(!D) return {items};
+  D.days.forEach(day=>day.items.forEach(it=>{
+    if(it.k!=="work") return;
+    if(it.job.status==="완료"||(it.delays&&it.delays.length)||it.memo||(it.expenses&&it.expenses.length)||it.extraReq||it.job.matDone)
+      items.push({job:it.job.id,date:day.date,status:it.job.status,matDone:!!it.job.matDone,
+        delays:(it.delays||[]).map(x=>({kind:x.kind,min:x.min,memo:"",ts:x.ts})),
+        expenses:(it.expenses||[]).map(x=>({kind:x.kind,amount:x.amount,memo:x.memo||"",ts:x.ts})),
+        extraReq:it.extraReq||null,memo:it.memo||"",photos:[]});
+  }));
+  return {type:"arte-tech-report",v:1,tech:{id:D.tech.id,name:D.tech.name},
+    issuedAt:new Date().toLocaleString("ko-KR"),items};
+}
+function download(obj,fname){
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(obj)],{type:"application/json"}));
+  a.download=fname;a.click();
+}
+function sendReport(){
+  const rep=makeReport();
+  if(!rep.items.length){alert("보고할 내용이 없습니다. 완료 처리·지연 신고·경비·현장 메모를 먼저 남겨 주세요.");return;}
+  const stamp=D.days[0].date.replace(/-/g,"")+(D.days.length>1?"-"+D.days[D.days.length-1].date.replace(/-/g,""):"");
+  download(rep,`아르떼보고_${D.tech.name}_${stamp}.json`);
+  D.reportedAt=new Date().toISOString(); D.dirty=false; syncArchive(); save();
+  toast(`${rep.items.length}건 보고 파일 저장됨`);
+  render();
+}
+
+$("btnLoad").onclick=()=>$("fileIn").click();
+$("fileIn").onchange=e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const rd=new FileReader();
+  rd.onload=()=>{
+    try{
+      const d=JSON.parse(rd.result);
+      if(d.type!=="arte-tech-schedule") return alert("아르떼조명 일정 파일이 아닙니다. 사무실에서 받은 아르떼일정_이름_날짜.json 파일을 선택해 주세요.");
+      if(D&&D.tech&&D.tech.name!==d.tech.name&&!confirm(`${D.tech.name} 기사님 일정이 저장돼 있습니다. ${d.tech.name} 기사님 일정으로 바꿀까요?`)) return;
+      syncArchive();                       // 이전 일정의 기록을 먼저 보관
+      D=d;
+      const today=ymd(new Date());
+      const i=D.days.findIndex(x=>x.date>=today);
+      dayIdx=i<0?0:i;
+      if(G){G.name=D.tech.name;put(GREET,G);}
+      screen="today"; save(); render();
+      toast(`${D.tech.name} 기사님 일정 ${D.days.length}일치 불러옴`);
+    }catch(err){alert("파일을 읽을 수 없습니다.");}
+  };
+  rd.readAsText(f); e.target.value="";
+};
+document.body.addEventListener("click",async e=>{
+  const el=a=>e.target.closest("["+a+"]");
+  let b;
+  if(b=el("data-nav")){screen=b.dataset.nav;render();window.scrollTo(0,0);return;}
+  if(b=el("data-enter")){ if(D){screen="today";render();} else $("fileIn").click(); return; }
+  if(b=el("data-loadnew")||el("data-load")){$("fileIn").click();return;}
+  if(b=el("data-goarch")){screen="archive";render();window.scrollTo(0,0);return;}
+  if(b=el("data-back")){screen="today";render();window.scrollTo(0,0);return;}
+  if(b=el("data-showdone")){screen="done";render();window.scrollTo(0,0);return;}
+  if(b=el("data-day")){dayIdx=+b.dataset.day;render();window.scrollTo(0,0);return;}
+  if(b=el("data-done")){
+    const it=D.days[dayIdx].items[+b.dataset.done];
+    it.job.status=it.job.status==="완료"?"예정":"완료";
+    save();syncArchive();
+    if(it.job.status==="완료"&&daySummary(D.days[dayIdx]).all){screen="done";render();window.scrollTo(0,0);}
+    else{render();toast(it.job.status==="완료"?"완료 처리했습니다 · 내 기록에 저장":"완료를 취소했습니다");}
+    return;
+  }
+  if(b=el("data-mat")){
+    const it=D.days[dayIdx].items[+b.dataset.mat];
+    it.job.matDone=!it.job.matDone; it.matDone=it.job.matDone;
+    save();syncArchive();render();toast(it.job.matDone?"자재 수령 확인":"수령 확인 해제");
+    return;
+  }
+  if(b=el("data-addexp")){
+    const i=+b.dataset.addexp;
+    const kind=document.querySelector(`[data-exkind="${i}"]`).value;
+    const amt=+document.querySelector(`[data-examt="${i}"]`).value||0;
+    if(!amt) return alert("금액을 입력해 주세요.");
+    const it=D.days[dayIdx].items[i];
+    it.expenses=it.expenses||[];
+    it.expenses.push({kind,amount:amt,memo:"",ts:new Date().toISOString()});
+    save();syncArchive();render();toast(`${kind} ${won(amt)} 기록`);
+    return;
+  }
+  if(b=el("data-delexp")){
+    const [i,k]=b.dataset.delexp.split("-").map(Number);
+    D.days[dayIdx].items[i].expenses.splice(k,1);save();syncArchive();render();return;
+  }
+  if(b=el("data-addextra")){
+    const i=+b.dataset.addextra;
+    const memo=document.querySelector(`[data-exmemo="${i}"]`).value.trim();
+    if(!memo) return alert("추가 작업 내용을 적어 주세요.");
+    const amt=+document.querySelector(`[data-exfee="${i}"]`).value||0;
+    D.days[dayIdx].items[i].extraReq={memo,amount:amt,ts:new Date().toISOString()};
+    save();syncArchive();render();toast("추가 작업을 보고 목록에 담았습니다");
+    return;
+  }
+  if(b=el("data-delay")){
+    const idx=+b.dataset.delay;
+    const sel=document.querySelector(`[data-kind="${idx}"]`);
+    addDelay(idx,+b.dataset.min,sel?sel.value:"기타");
+    return;
+  }
+  if(b=el("data-report")){sendReport();return;}
+  if(b=el("data-copy")){
+    const txt=dayText();
+    try{await navigator.clipboard.writeText(txt);toast("복사했습니다");}catch(err){alert(txt);}
+    return;
+  }
+  if(b=el("data-archfile")){
+    download({type:"arte-tech-archive",v:1,tech:A.items[0]?A.items[0].tech:"",items:A.items},
+      `아르떼기록_${A.items[0]?A.items[0].tech:"기사"}_${ymd(new Date()).replace(/-/g,"")}.json`);
+    toast("기록 파일을 저장했습니다");return;
+  }
+  if(b=el("data-archcopy")){
+    const txt=archText();
+    try{await navigator.clipboard.writeText(txt);toast("복사했습니다");}catch(err){alert(txt);}
+    return;
+  }
+});
+document.body.addEventListener("input",e=>{
+  const t=e.target.closest("[data-memo]"); if(!t) return;
+  D.days[dayIdx].items[+t.dataset.memo].memo=t.value;
+  save();
+});
+
+(async function init(){
+  const [sc,ar,gr]=await Promise.all([get(SCHED),get(ARCH),get(GREET)]);
+  if(ar&&ar.items) A=ar;
+  if(gr) G=gr;
+  if(sc&&sc.type==="arte-tech-schedule"){
+    D=sc;
+    const today=ymd(new Date());
+    const i=D.days.findIndex(x=>x.date>=today);
+    dayIdx=i<0?D.days.length-1:i;
+  }
+  screen="greet";
+  render();
+})();
+</script>
+</body>
+</html>
